@@ -41,16 +41,23 @@ func main() {
 	// Sleep for 1 second - this is NOT a proper synchronization mechanism!
 	// The goroutine might run during this sleep, or it might not
 	// The timing is unpredictable and depends on the Go scheduler
-	time.Sleep(1 * time.Second)
+	time.Sleep(1 * time.Millisecond)
 
 	// This condition check demonstrates the race condition:
 	// We expect data to be 2, but it's actually unpredictable
 	// because we have no guarantee about when/how many times
 	// the increment function runs
-	if data == 2 {
+	if data == 0 {
 		fmt.Printf("the value is %v.\n", data)
 	} else {
 		fmt.Printf("Unexpected value: %v (race condition occurred)\n", data)
 	}
 
 }
+
+// The Fix
+// 1. Use a WaitGroup to wait for the goroutine to finish
+// 2. Use a Mutex to synchronize access to the shared variable
+// 3. Use a Channel to synchronize access to the shared variable
+
+// we will use atomic operations to fix the race condition next
