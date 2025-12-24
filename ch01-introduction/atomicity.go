@@ -23,7 +23,7 @@ func badAtomicityExample() {
 	var counter int
 
 	// Start multiple goroutines that increment the same variable
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		go func() {
 			counter++ // NOT atomic! Read-modify-write operation
 		}()
@@ -39,7 +39,7 @@ func goodAtomicityWithMutex() {
 	var mu sync.Mutex
 
 	var wg sync.WaitGroup
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -58,7 +58,7 @@ func goodAtomicityWithAtomic() {
 	var counter int64
 
 	var wg sync.WaitGroup
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
