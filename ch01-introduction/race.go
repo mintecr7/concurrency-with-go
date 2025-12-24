@@ -33,7 +33,7 @@ func increment() {
 	data++
 }
 
-func main() {
+func runRaceCondition() {
 	// Start a goroutine that will increment the shared variable
 	// This creates concurrent access to the global 'data' variable
 	go increment()
@@ -54,6 +54,10 @@ func main() {
 	}
 
 }
+
+// func main() {
+// 	runRaceCondition()
+// }
 
 // The Fix
 // 1. Use a WaitGroup to wait for the goroutine to finish
