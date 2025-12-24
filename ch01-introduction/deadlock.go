@@ -39,9 +39,9 @@ func runDeadlock() {
 	wg.Wait()
 }
 
-func main() {
-	runDeadlock()
-}
+// func main() {
+// 	runDeadlock()
+// }
 
 // 1. Here we attempt to enter the critical section for the incoming value.
 // 2. Here we use the defer statement to exit the critical section before printSum returns.
@@ -94,6 +94,6 @@ func main() {
 //    |              |------------->|           |               |
 //    |              |              |           |<--------------|
 //    |              |              |           |               |
-//    |              |      X <-----------------|               |
+//    |              |             X <----------|               |
 //    |              |              |----------> X              |
 //    |            [DEADLOCK]       |           |           [DEADLOCK]
