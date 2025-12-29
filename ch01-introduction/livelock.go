@@ -82,9 +82,9 @@ func runLivelock() {
 	wg.Wait()
 }
 
-func main() {
-	runLivelock()
-}
+// func main() {
+// 	runLivelock()
+// }
 
 // --- What is happening here? ---
 //
