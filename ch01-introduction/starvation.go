@@ -13,7 +13,7 @@ import (
 // involves a "greedy" process that unfairly consumes resources at the
 // expense of "polite" processes.
 
-var wG sync.WaitGroup
+var wG sync.WaitGroup // counting semaphore
 var sharedLock sync.Mutex
 
 const runtime = 1 * time.Second
@@ -58,8 +58,8 @@ func runStarvation() {
 	}
 
 	wG.Add(2)
-	go greedyWorker()
 	go politeWorker()
+	go greedyWorker()
 	wG.Wait()
 }
 
