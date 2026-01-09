@@ -65,7 +65,7 @@ func CPUBoundWork(id int, wg *sync.WaitGroup) {
 
 	// CPU-intensive calculation
 	sum := 0
-	for i := 0; i < 1000000000; i++ {
+	for i := range 1000000000 {
 		sum += i
 	}
 
