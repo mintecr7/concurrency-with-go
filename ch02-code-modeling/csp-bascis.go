@@ -98,7 +98,7 @@ func SelectStatementDemo() {
 
 	go func() {
 		time.Sleep(50 * time.Millisecond)
-		ch2 <- "from channel 2"
+		ch2 <- "from channel 2, HAHAHHAHAHA keep sleeping rabbit"
 	}()
 
 	// Select waits for whichever channel is ready first
