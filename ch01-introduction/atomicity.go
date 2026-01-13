@@ -36,17 +36,15 @@ func badAtomicityExample() {
 // GOOD EXAMPLE 1: Using mutex for atomicity
 func goodAtomicityWithMutex() {
 	var counter int
-	var mu sync.Mutex
+	var mu sync.Mutex // mutual exclusion
 
 	var wg sync.WaitGroup
 	for range 1000 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			mu.Lock() // Ensure exclusive access
 			counter++ // Now atomic within the critical section
 			mu.Unlock()
-		}()
+		})
 	}
 	wg.Wait()
 
@@ -59,11 +57,9 @@ func goodAtomicityWithAtomic() {
 
 	var wg sync.WaitGroup
 	for range 1000 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			atomic.AddInt64(&counter, 1) // Atomic operation
-		}()
+		})
 	}
 	wg.Wait()
 
