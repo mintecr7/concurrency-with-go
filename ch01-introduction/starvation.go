@@ -63,10 +63,6 @@ func runStarvation() {
 	wG.Wait()
 }
 
-func main() {
-	runStarvation()
-}
-
 // --- What is happening here? ---
 //
 // 1. THE RESOURCE: Both workers need the 'sharedLock' to perform their 3ns of work.
