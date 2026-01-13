@@ -66,7 +66,7 @@ This is a learning repository, so code may contain experiments, incomplete imple
 ## Progress Tracker
 
 - **:white_check_mark:** Chapter 1: An Introduction to Concurrency
-- [ ] Chapter 2: Modeling Your Code: Communicating Sequential Processes
+- **:white_check_mark:** Chapter 2: Modeling Your Code: Communicating Sequential Processes
 - [ ] Chapter 3: Go's Concurrency Building Blocks
 - [ ] Chapter 4: Concurrency Patterns in Go
 - [ ] Chapter 5: Concurrency at Scale
