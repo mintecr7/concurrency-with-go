@@ -1,4 +1,4 @@
-package main
+package syncpackage
 
 import (
 	"fmt"
@@ -14,6 +14,20 @@ import (
 // Use them for small scopes (like within a struct) when appropriate.
 // ============================================================================
 
+// A WaitGroup is a counting semaphore typically used to wait
+// for a group of goroutines or tasks to finish.
+//
+// Typically, a main goroutine will start tasks, each in a new
+// goroutine, by calling [WaitGroup.Go] and then wait for all tasks to
+// complete by calling [WaitGroup.Wait]. For example:
+//	var wg sync.WaitGroup
+//	wg.Go(task1)
+//	wg.Go(task2)
+//	wg.Wait()
+//
+// A WaitGroup may also be used for tracking tasks without using Go to
+// start new goroutines by using [WaitGroup.Add] and [WaitGroup.Done].
+//
 // ============================================================================
 // 1. WAITGROUP - BASIC USAGE
 // ============================================================================
@@ -28,6 +42,14 @@ func basicWaitGroup() {
 	// - Add(n): Increment counter by n
 	// - Done(): Decrement counter by 1
 	// - Wait(): Block until counter reaches 0
+
+	// For the sake of clarity I am manually calling Add and Done in this example
+	// however to decrease unexpected human error use the method bellow to spin go routines
+	// with a wait group
+	// wg.Go(func() {
+	// 	fmt.Println("1st goroutine sleeping...")
+	// 	time.Sleep(100 * time.Millisecond)
+	// })
 
 	wg.Add(1) // Increment counter (1 goroutine starting)
 	go func() {
@@ -67,7 +89,7 @@ func waitGroupWithLoops() {
 	// Best practice: Add all goroutines at once BEFORE starting them
 	wg.Add(numGreeters)
 
-	for i := 0; i < numGreeters; i++ {
+	for i := range numGreeters {
 		go hello(&wg, i+1) // Pass WaitGroup by pointer
 	}
 
@@ -95,7 +117,7 @@ func wrongAddPlacement() {
 
 	// Race condition: Wait() might execute before any Add() calls
 	// This could return immediately, terminating before goroutines run!
-	time.Sleep(10 * time.Millisecond) // Hack to "fix" it (still wrong!)
+	// time.Sleep(10 * time.Millisecond) // Hack to "fix" it (still wrong!)
 	wg.Wait()
 	fmt.Println("^ This pattern is unsafe - don't use it!")
 }
@@ -106,7 +128,7 @@ func correctAddPlacement() {
 	var wg sync.WaitGroup
 
 	// CORRECT: Add() is called BEFORE starting the goroutine
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		wg.Add(1) // Guarantee Add() happens before Wait()
 		go func(id int) {
 			defer wg.Done()
@@ -295,8 +317,8 @@ func commonMistakes() {
 	// Mistake 2: Calling Add() with wrong count
 	fmt.Println("\nMistake 2: Wrong Add() count")
 	var wg2 sync.WaitGroup
-	wg2.Add(5)               // Says 5 goroutines...
-	for i := 0; i < 3; i++ { // But only starts 3!
+	wg2.Add(5)    // Says 5 goroutines...
+	for range 3 { // But only starts 3!
 		go func() {
 			defer wg2.Done()
 		}()
@@ -383,40 +405,41 @@ func realWorldExample() {
 // MAIN FUNCTION - RUN ALL EXAMPLES
 // ============================================================================
 
-func main() {
+func WaitGroupDemo() {
 	fmt.Println("╔════════════════════════════════════════════════════════════╗")
 	fmt.Println("║              sync.WaitGroup COMPLETE GUIDE                 ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 
 	// Run all demonstrations
-	basicWaitGroup()
-	waitGroupWithLoops()
-	wrongAddPlacement()
-	correctAddPlacement()
+	// basicWaitGroup()
+	// waitGroupWithLoops()
+	// wrongAddPlacement()
+	// correctAddPlacement()
 	whenToUseWaitGroup()
-	waitGroupWithResults()
-	structExample()
-	visualizeCounter()
-	commonMistakes()
-	bestPractices()
-	realWorldExample()
+	// waitGroupWithResults()
+	// structExample()
+	// visualizeCounter()
+	// commonMistakes()
+	// bestPractices()
+	// realWorldExample()
 
-	fmt.Println("\n╔════════════════════════════════════════════════════════════╗")
+	fmt.Println()
+	fmt.Println("╔════════════════════════════════════════════════════════════╗")
 	fmt.Println("║                    KEY TAKEAWAYS                           ║")
 	fmt.Println("╠════════════════════════════════════════════════════════════╣")
-	fmt.Println("║ WaitGroup is a concurrent-safe counter:                   ║")
-	fmt.Println("║   • Add(n): Increment counter by n                        ║")
-	fmt.Println("║   • Done(): Decrement counter by 1                        ║")
-	fmt.Println("║   • Wait(): Block until counter = 0                       ║")
+	fmt.Println("║ WaitGroup is a concurrent-safe counter:                    ║")
+	fmt.Println("║   • Add(n): Increment counter by n                         ║")
+	fmt.Println("║   • Done(): Decrement counter by 1                         ║")
+	fmt.Println("║   • Wait(): Block until counter = 0                        ║")
 	fmt.Println("║                                                            ║")
-	fmt.Println("║ Golden Rule: Call Add() BEFORE starting goroutine         ║")
+	fmt.Println("║ Golden Rule: Call Add() BEFORE starting goroutine          ║")
 	fmt.Println("║                                                            ║")
-	fmt.Println("║ Use WaitGroup when:                                       ║")
-	fmt.Println("║   • You don't need results from goroutines                ║")
-	fmt.Println("║   • You collect results via other means (shared data)     ║")
+	fmt.Println("║ Use WaitGroup when:                                        ║")
+	fmt.Println("║   • You don't need results from goroutines                 ║")
+	fmt.Println("║   • You collect results via other means (shared data)      ║")
 	fmt.Println("║                                                            ║")
-	fmt.Println("║ Don't use WaitGroup when:                                 ║")
-	fmt.Println("║   • You need results → Use channels instead               ║")
-	fmt.Println("║   • Complex coordination → Use channels + select          ║")
+	fmt.Println("║ Don't use WaitGroup when:                                  ║")
+	fmt.Println("║   • You need results → Use channels instead                ║")
+	fmt.Println("║   • Complex coordination → Use channels + select           ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 }
