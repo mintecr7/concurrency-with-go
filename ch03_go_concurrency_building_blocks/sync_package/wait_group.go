@@ -153,8 +153,10 @@ func whenToUseWaitGroup() {
 
 	// Example 1: Fire-and-forget operations
 	var wg sync.WaitGroup
+	var mu sync.Mutex // Add a mutex to protect the slice [binary lock] to avoid race condition
 
 	tasks := []string{"Send email", "Update database", "Log event"}
+	collecting := []string{}
 
 	wg.Add(len(tasks))
 	for _, task := range tasks {
@@ -162,12 +164,17 @@ func whenToUseWaitGroup() {
 			defer wg.Done()
 			fmt.Printf("Executing: %s\n", t)
 			time.Sleep(10 * time.Millisecond)
+			result := fmt.Sprintf("Finished: %s", t)
+			mu.Lock()
+			collecting = append(collecting, result)
+			mu.Unlock()
 			// No return value needed
 		}(task)
 	}
 
 	wg.Wait()
 	fmt.Println("All tasks completed (no results needed)")
+	fmt.Printf("Collected results: %v\n", collecting)
 }
 
 // ============================================================================
