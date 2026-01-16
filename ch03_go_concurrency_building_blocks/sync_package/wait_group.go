@@ -268,7 +268,14 @@ func visualizeCounter() {
 
 	wg.Add(3)
 	printCounter("After Add(3) -> Counter: 3")
-
+	// for i := range 3 {
+	// 	wg.Go(func() {
+	// 		fmt.Printf("Goroutine %d executing..\n", i)
+	// 		time.Sleep(10 * time.Millisecond)
+	// 		message := fmt.Sprintf("After Done() #%d -> Counter: %d", i, i+1)
+	// 		printCounter(message)
+	// 	})
+	// }
 	go func() {
 		defer wg.Done()
 		fmt.Println("Goroutine 1 executing...")
@@ -310,11 +317,10 @@ func commonMistakes() {
 		wg.Add(1)
 		go func() {
 			// Missing: defer wg.Done()
-			fmt.Println("Working...")
+			fmt.Println("Working...") // fatal error: all goroutines are asleep - deadlock!
 		}()
 		wg.Wait() // Deadlock! Counter never reaches 0
 	*/
-
 	// Mistake 2: Calling Add() with wrong count
 	fmt.Println("\nMistake 2: Wrong Add() count")
 	var wg2 sync.WaitGroup
@@ -331,12 +337,18 @@ func commonMistakes() {
 	fmt.Println("\nMistake 3: Reusing WaitGroup")
 	var wg3 sync.WaitGroup
 	wg3.Add(1)
-	go func() { defer wg3.Done() }()
+	go func() {
+		defer wg3.Done()
+		fmt.Println("\nFirst time use of wait group")
+	}()
 	wg3.Wait()
 
 	// Can reuse, but be careful!
 	wg3.Add(1)
-	go func() { defer wg3.Done() }()
+	go func() {
+		defer wg3.Done()
+		fmt.Println("\nRe-use case of wait group")
+	}()
 	wg3.Wait()
 	fmt.Println("WaitGroup can be reused (but carefully)")
 }
@@ -411,18 +423,18 @@ func WaitGroupDemo() {
 	fmt.Println("║              sync.WaitGroup COMPLETE GUIDE                 ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 
-	// Run all demonstrations
-	// basicWaitGroup()
-	// waitGroupWithLoops()
-	// wrongAddPlacement()
-	// correctAddPlacement()
-	// whenToUseWaitGroup()
+	// Run all demonstrations turn by turn [easier to understand that way]
+	basicWaitGroup()
+	waitGroupWithLoops()
+	wrongAddPlacement()
+	correctAddPlacement()
+	whenToUseWaitGroup()
 	waitGroupWithResults()
-	// structExample()
-	// visualizeCounter()
-	// commonMistakes()
-	// bestPractices()
-	// realWorldExample()
+	structExample()
+	visualizeCounter()
+	commonMistakes()
+	bestPractices()
+	realWorldExample()
 
 	fmt.Println()
 	fmt.Println("╔════════════════════════════════════════════════════════════╗")
