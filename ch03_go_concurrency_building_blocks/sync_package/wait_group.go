@@ -109,7 +109,7 @@ func wrongAddPlacement() {
 	// WRONG: Add() is inside the goroutine
 	for i := range 5 {
 		go func(id int) {
-			wg.Add(1) // BUG: May not execute before Wait()
+			// wg.Add(1) // BUG: May not execute before Wait()
 			defer wg.Done()
 			fmt.Printf("Goroutine %d\n", id)
 		}(i)
