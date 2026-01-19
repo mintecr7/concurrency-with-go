@@ -58,20 +58,16 @@ func basicMutex() {
 
 	// Launch 5 increment goroutines
 	for range 5 {
-		arithmetic.Add(1)
-		go func() {
-			defer arithmetic.Done()
+		arithmetic.Go(func() {
 			increment()
-		}()
+		})
 	}
 
 	// Launch 5 decrement goroutines
 	for range 5 {
-		arithmetic.Add(1)
-		go func() {
-			defer arithmetic.Done()
+		arithmetic.Go(func() {
 			decrement()
-		}()
+		})
 	}
 
 	arithmetic.Wait()
@@ -519,7 +515,7 @@ func lockerInterface() {
 // MAIN FUNCTION - RUN ALL EXAMPLES
 // ============================================================================
 
-func main() {
+func MutexAndRWMutex() {
 	fmt.Println("╔════════════════════════════════════════════════════════════╗")
 	fmt.Println("║           MUTEX & RWMUTEX COMPLETE GUIDE                   ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
