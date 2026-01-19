@@ -88,11 +88,9 @@ func withoutMutex() {
 	var wg sync.WaitGroup
 
 	for range 1000 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			count++ // UNSAFE: Multiple goroutines writing simultaneously
-		}()
+		})
 	}
 
 	wg.Wait()
@@ -108,14 +106,12 @@ func withMutex() {
 
 	var wg sync.WaitGroup
 
-	for i := 0; i < 1000; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+	for range 1000 {
+		wg.Go(func() {
 			mu.Lock()   // Acquire lock
 			count++     // SAFE: Only one goroutine at a time
 			mu.Unlock() // Release lock
-		}()
+		})
 	}
 
 	wg.Wait()
@@ -522,8 +518,8 @@ func MutexAndRWMutex() {
 
 	// Run all demonstrations
 	// basicMutex()
-	withoutMutex()
-	// withMutex()
+	// withoutMutex()
+	withMutex()
 	// criticalSections()
 	// mutexBestPractices()
 	// criticalSectionOptimization()
