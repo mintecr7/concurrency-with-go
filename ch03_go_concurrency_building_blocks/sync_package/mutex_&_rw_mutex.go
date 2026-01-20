@@ -297,7 +297,7 @@ func performanceComparison() {
 		defer wg.Done()
 		for i := 5; i > 0; i-- {
 			l.Lock()
-			l.Unlock()
+			defer l.Unlock()                 // remove defer for demo
 			time.Sleep(1 * time.Millisecond) // Less active than observers
 		}
 	}
@@ -458,8 +458,8 @@ func deadlockExamples() {
 	go func() {
 		mu1.Lock()
 		time.Sleep(1 * time.Millisecond)
-		mu2.Lock() // Waits for mu2
-		mu2.Unlock()
+		mu2.Lock()         // Waits for mu2
+		defer mu2.Unlock() // remove defer for demo
 		mu1.Unlock()
 	}()
 
@@ -467,8 +467,8 @@ func deadlockExamples() {
 	go func() {
 		mu2.Lock()
 		time.Sleep(1 * time.Millisecond)
-		mu1.Lock() // Waits for mu1 - DEADLOCK!
-		mu1.Unlock()
+		mu1.Lock()         // Waits for mu1 - DEADLOCK!
+		defer mu1.Unlock() // remove defer for demo
 		mu2.Unlock()
 	}()
 
@@ -520,9 +520,9 @@ func MutexAndRWMutex() {
 	// basicMutex()
 	// withoutMutex()
 	// withMutex()
-	criticalSections()
+	// criticalSections()
 	// mutexBestPractices()
-	// criticalSectionOptimization()
+	criticalSectionOptimization()
 	// basicRWMutex()
 	// performanceComparison()
 	// whenToUseWhich()
