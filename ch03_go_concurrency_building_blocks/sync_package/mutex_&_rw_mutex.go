@@ -227,6 +227,20 @@ func criticalSectionOptimization() {
 // 6. RWMUTEX (Read-Write Mutex)
 // ============================================================================
 
+// A RWMutex is a reader/writer mutual exclusion lock.
+// The lock can be held by an arbitrary number of readers or a single writer.
+// The zero value for a RWMutex is an unlocked mutex.
+//
+// A RWMutex must not be copied after first use.
+//
+// If any goroutine calls [RWMutex.Lock] while the lock is already held by
+// one or more readers, concurrent calls to [RWMutex.RLock] will block until
+// the writer has acquired (and released) the lock, to ensure that
+// the lock eventually becomes available to the writer.
+// Note that this prohibits recursive read-locking.
+// A [RWMutex.RLock] cannot be upgraded into a [RWMutex.Lock],
+// nor can a [RWMutex.Lock] be downgraded into a [RWMutex.RLock].
+
 func basicRWMutex() {
 	fmt.Println("\n=== RWMutex (Read-Write Mutex) ===")
 
@@ -260,21 +274,19 @@ func basicRWMutex() {
 	var wg sync.WaitGroup
 
 	// Start 1 writer
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for i := 0; i < 3; i++ {
+	wg.Go(func() {
+		for i := range 3 {
 			write("counter", i)
 			fmt.Printf("Writer: set counter to %d\n", i)
 		}
-	}()
+	})
 
 	// Start 5 readers (can read concurrently!)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
-			for j := 0; j < 3; j++ {
+			for range 3 {
 				val := read("counter")
 				fmt.Printf("Reader %d: read %d\n", id, val)
 			}
@@ -297,7 +309,7 @@ func performanceComparison() {
 		defer wg.Done()
 		for i := 5; i > 0; i-- {
 			l.Lock()
-			l.Unlock()
+			l.Unlock()                       // remove defer for demo [will cause deadlock, if not removed]
 			time.Sleep(1 * time.Millisecond) // Less active than observers
 		}
 	}
@@ -330,7 +342,7 @@ func performanceComparison() {
 	fmt.Fprintf(tw, "Readers\tRWMutex\tMutex\n")
 
 	// Test with increasing number of readers
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		count := int(math.Pow(2, float64(i)))
 		rwTime := test(count, &m, m.RLocker()) // Uses RLock for readers
 		mutexTime := test(count, &m, &m)       // Uses Lock for readers
@@ -458,8 +470,8 @@ func deadlockExamples() {
 	go func() {
 		mu1.Lock()
 		time.Sleep(1 * time.Millisecond)
-		mu2.Lock() // Waits for mu2
-		mu2.Unlock()
+		mu2.Lock()         // Waits for mu2
+		defer mu2.Unlock() // remove defer for demo
 		mu1.Unlock()
 	}()
 
@@ -467,8 +479,8 @@ func deadlockExamples() {
 	go func() {
 		mu2.Lock()
 		time.Sleep(1 * time.Millisecond)
-		mu1.Lock() // Waits for mu1 - DEADLOCK!
-		mu1.Unlock()
+		mu1.Lock()         // Waits for mu1 - DEADLOCK!
+		defer mu1.Unlock() // remove defer for demo
 		mu2.Unlock()
 	}()
 
@@ -520,11 +532,11 @@ func MutexAndRWMutex() {
 	// basicMutex()
 	// withoutMutex()
 	// withMutex()
-	criticalSections()
+	// criticalSections()
 	// mutexBestPractices()
 	// criticalSectionOptimization()
 	// basicRWMutex()
-	// performanceComparison()
+	performanceComparison()
 	// whenToUseWhich()
 	// cacheExample()
 	// deadlockExamples()
