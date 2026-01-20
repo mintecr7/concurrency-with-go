@@ -274,21 +274,19 @@ func basicRWMutex() {
 	var wg sync.WaitGroup
 
 	// Start 1 writer
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for i := 0; i < 3; i++ {
+	wg.Go(func() {
+		for i := range 3 {
 			write("counter", i)
 			fmt.Printf("Writer: set counter to %d\n", i)
 		}
-	}()
+	})
 
 	// Start 5 readers (can read concurrently!)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
-			for j := 0; j < 3; j++ {
+			for range 3 {
 				val := read("counter")
 				fmt.Printf("Reader %d: read %d\n", id, val)
 			}
@@ -344,7 +342,7 @@ func performanceComparison() {
 	fmt.Fprintf(tw, "Readers\tRWMutex\tMutex\n")
 
 	// Test with increasing number of readers
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		count := int(math.Pow(2, float64(i)))
 		rwTime := test(count, &m, m.RLocker()) // Uses RLock for readers
 		mutexTime := test(count, &m, &m)       // Uses Lock for readers
