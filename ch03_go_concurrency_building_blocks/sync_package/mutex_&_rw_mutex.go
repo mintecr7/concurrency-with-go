@@ -227,6 +227,20 @@ func criticalSectionOptimization() {
 // 6. RWMUTEX (Read-Write Mutex)
 // ============================================================================
 
+// A RWMutex is a reader/writer mutual exclusion lock.
+// The lock can be held by an arbitrary number of readers or a single writer.
+// The zero value for a RWMutex is an unlocked mutex.
+//
+// A RWMutex must not be copied after first use.
+//
+// If any goroutine calls [RWMutex.Lock] while the lock is already held by
+// one or more readers, concurrent calls to [RWMutex.RLock] will block until
+// the writer has acquired (and released) the lock, to ensure that
+// the lock eventually becomes available to the writer.
+// Note that this prohibits recursive read-locking.
+// A [RWMutex.RLock] cannot be upgraded into a [RWMutex.Lock],
+// nor can a [RWMutex.Lock] be downgraded into a [RWMutex.RLock].
+
 func basicRWMutex() {
 	fmt.Println("\n=== RWMutex (Read-Write Mutex) ===")
 
@@ -522,8 +536,8 @@ func MutexAndRWMutex() {
 	// withMutex()
 	// criticalSections()
 	// mutexBestPractices()
-	criticalSectionOptimization()
-	// basicRWMutex()
+	// criticalSectionOptimization()
+	basicRWMutex()
 	// performanceComparison()
 	// whenToUseWhich()
 	// cacheExample()
