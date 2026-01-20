@@ -1,5 +1,6 @@
 package main
 
 func main() {
-	demoAtomicityExamples()
+	// demoAtomicityExamples()
+	memoryAccessSynchronization()
 }

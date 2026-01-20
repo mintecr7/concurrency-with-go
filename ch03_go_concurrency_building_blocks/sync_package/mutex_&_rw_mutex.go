@@ -152,7 +152,7 @@ func criticalSections() {
 	var wg sync.WaitGroup
 
 	// Multiple goroutines trying to withdraw
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
@@ -519,8 +519,8 @@ func MutexAndRWMutex() {
 	// Run all demonstrations
 	// basicMutex()
 	// withoutMutex()
-	withMutex()
-	// criticalSections()
+	// withMutex()
+	criticalSections()
 	// mutexBestPractices()
 	// criticalSectionOptimization()
 	// basicRWMutex()

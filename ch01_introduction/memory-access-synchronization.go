@@ -3,17 +3,20 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 func memoryAccessSynchronization() {
 	var memoryAccess sync.Mutex // 1
 	var data int
 	go func() {
+		// time.Sleep(5 * time.Millisecond) // race condition will occur in this case [print statement is called first]
 		memoryAccess.Lock()   // 2
 		data++                // atomic
 		memoryAccess.Unlock() // 3
 	}()
-	memoryAccess.Lock() // 4
+	time.Sleep(10 * time.Millisecond) // prevent race condition, but not a good solution
+	memoryAccess.Lock()               // 4
 	if data == 0 {
 		fmt.Printf("the value is %v.\n", data) // atomic
 	} else {
