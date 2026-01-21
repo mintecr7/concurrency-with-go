@@ -9,4 +9,5 @@ func main() {
 	// syncpackage.WaitGroupDemo()
 	// syncpackage.MutexAndRWMutex()
 	syncpackage.CondDemo()
+	// syncpackage.RunOnceExamples()
 }
