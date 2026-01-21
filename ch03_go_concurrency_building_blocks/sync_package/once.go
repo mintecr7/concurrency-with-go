@@ -283,117 +283,117 @@ func deadlockExample() {
 	*/
 }
 
-// // ============================================================================
-// // 8. MULTIPLE sync.Once FOR DIFFERENT INITIALIZATIONS
-// // ============================================================================
+// ============================================================================
+// 8. MULTIPLE sync.Once FOR DIFFERENT INITIALIZATIONS
+// ============================================================================
 
-// type Service struct {
-// 	onceDB    sync.Once
-// 	onceCache sync.Once
-// 	db        string
-// 	cache     string
-// }
+type Service_1 struct {
+	onceDB    sync.Once
+	onceCache sync.Once
+	db        string
+	cache     string
+}
 
-// func (s *Service) InitDB() {
-// 	s.onceDB.Do(func() {
-// 		fmt.Println("  Initializing database...")
-// 		time.Sleep(50 * time.Millisecond)
-// 		s.db = "db_connected"
-// 	})
-// }
+func (s *Service_1) InitDB() {
+	s.onceDB.Do(func() {
+		fmt.Println("  Initializing database...")
+		time.Sleep(50 * time.Millisecond)
+		s.db = "db_connected"
+	})
+}
 
-// func (s *Service) InitCache() {
-// 	s.onceCache.Do(func() {
-// 		fmt.Println("  Initializing cache...")
-// 		time.Sleep(50 * time.Millisecond)
-// 		s.cache = "cache_connected"
-// 	})
-// }
+func (s *Service_1) InitCache() {
+	s.onceCache.Do(func() {
+		fmt.Println("  Initializing cache...")
+		time.Sleep(50 * time.Millisecond)
+		s.cache = "cache_connected"
+	})
+}
 
-// func multipleOnce() {
-// 	fmt.Println("\n=== Multiple sync.Once for Different Resources ===")
+func multipleOnce() {
+	fmt.Println("\n=== Multiple sync.Once for Different Resources ===")
 
-// 	service := &Service{}
-// 	var wg sync.WaitGroup
+	service := &Service_1{}
+	var wg sync.WaitGroup
 
-// 	// Some goroutines need DB
-// 	for i := 0; i < 3; i++ {
-// 		wg.Add(1)
-// 		go func(id int) {
-// 			defer wg.Done()
-// 			service.InitDB()
-// 			fmt.Printf("Goroutine %d: DB ready\n", id)
-// 		}(i)
-// 	}
+	// Some goroutines need DB
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			service.InitDB()
+			fmt.Printf("Goroutine %d: DB ready\n", id)
+		}(i)
+	}
 
-// 	// Some goroutines need Cache
-// 	for i := 0; i < 3; i++ {
-// 		wg.Add(1)
-// 		go func(id int) {
-// 			defer wg.Done()
-// 			service.InitCache()
-// 			fmt.Printf("Goroutine %d: Cache ready\n", id)
-// 		}(i + 3)
-// 	}
+	// Some goroutines need Cache
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			service.InitCache()
+			fmt.Printf("Goroutine %d: Cache ready\n", id)
+		}(i + 3)
+	}
 
-// 	wg.Wait()
-// 	fmt.Println("Each resource initialized exactly once!")
-// }
+	wg.Wait()
+	fmt.Println("Each resource initialized exactly once!")
+}
 
-// // ============================================================================
-// // 9. ERROR HANDLING WITH sync.Once
-// // ============================================================================
+// ============================================================================
+// 9. ERROR HANDLING WITH sync.Once
+// ============================================================================
 
-// type ConnectionPool struct {
-// 	once  sync.Once
-// 	conn  string
-// 	err   error
-// }
+type ConnectionPool struct {
+	once sync.Once
+	conn string
+	err  error
+}
 
-// func (cp *ConnectionPool) Connect() error {
-// 	cp.once.Do(func() {
-// 		fmt.Println("  Attempting connection...")
-// 		time.Sleep(50 * time.Millisecond)
+func (cp *ConnectionPool) Connect() error {
+	cp.once.Do(func() {
+		fmt.Println("  Attempting connection...")
+		time.Sleep(50 * time.Millisecond)
 
-// 		// Simulate connection error
-// 		if time.Now().Unix()%2 == 0 {
-// 			cp.err = fmt.Errorf("connection failed")
-// 			fmt.Println("  ❌ Connection failed")
-// 		} else {
-// 			cp.conn = "connected"
-// 			fmt.Println("  ✓ Connection successful")
-// 		}
-// 	})
-// 	return cp.err
-// }
+		// Simulate connection error
+		if time.Now().Unix()%2 == 0 {
+			cp.err = fmt.Errorf("connection failed")
+			fmt.Println("  ❌ Connection failed")
+		} else {
+			cp.conn = "connected"
+			fmt.Println("  ✓ Connection successful")
+		}
+	})
+	return cp.err
+}
 
-// func errorHandling() {
-// 	fmt.Println("\n=== Error Handling with sync.Once ===")
+func errorHandling() {
+	fmt.Println("\n=== Error Handling with sync.Once ===")
 
-// 	fmt.Println("\n⚠️  Important: sync.Once executes exactly once")
-// 	fmt.Println("Even if the function returns an error!")
-// 	fmt.Println("If initialization fails, it stays failed")
+	fmt.Println("\n⚠️  Important: sync.Once executes exactly once")
+	fmt.Println("Even if the function returns an error!")
+	fmt.Println("If initialization fails, it stays failed")
 
-// 	pool := &ConnectionPool{}
+	pool := &ConnectionPool{}
 
-// 	// First call
-// 	err := pool.Connect()
-// 	if err != nil {
-// 		fmt.Printf("First call: %v\n", err)
-// 	} else {
-// 		fmt.Println("First call: Success")
-// 	}
+	// First call
+	err := pool.Connect()
+	if err != nil {
+		fmt.Printf("First call: %v\n", err)
+	} else {
+		fmt.Println("First call: Success")
+	}
 
-// 	// Second call - won't retry even if first failed!
-// 	err = pool.Connect()
-// 	if err != nil {
-// 		fmt.Printf("Second call: %v (same error, no retry)\n", err)
-// 	} else {
-// 		fmt.Println("Second call: Success")
-// 	}
+	// Second call - won't retry even if first failed!
+	err = pool.Connect()
+	if err != nil {
+		fmt.Printf("Second call: %v (same error, no retry)\n", err)
+	} else {
+		fmt.Println("Second call: Success")
+	}
 
-// 	fmt.Println("\n💡 For retry logic, don't use sync.Once!")
-// }
+	fmt.Println("\n💡 For retry logic, don't use sync.Once!")
+}
 
 // // ============================================================================
 // // 10. PERFORMANCE: WHEN TO USE sync.Once
