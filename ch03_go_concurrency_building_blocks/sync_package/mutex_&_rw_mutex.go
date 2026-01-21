@@ -307,9 +307,10 @@ func performanceComparison() {
 	// Producer: writes occasionally
 	producer := func(wg *sync.WaitGroup, l sync.Locker) {
 		defer wg.Done()
-		for i := 5; i > 0; i-- {
+		for range 5 {
 			l.Lock()
-			l.Unlock()                       // remove defer for demo [will cause deadlock, if not removed]
+			fmt.Printf("Producer: acquired lock\n")
+			l.Unlock()
 			time.Sleep(1 * time.Millisecond) // Less active than observers
 		}
 	}
@@ -342,7 +343,7 @@ func performanceComparison() {
 	fmt.Fprintf(tw, "Readers\tRWMutex\tMutex\n")
 
 	// Test with increasing number of readers
-	for i := range 10 {
+	for i := range 20 {
 		count := int(math.Pow(2, float64(i)))
 		rwTime := test(count, &m, m.RLocker()) // Uses RLock for readers
 		mutexTime := test(count, &m, &m)       // Uses Lock for readers
@@ -352,6 +353,29 @@ func performanceComparison() {
 
 	fmt.Println("\nRWMutex becomes faster when many readers (low write ratio)")
 }
+
+// the output shows that RWMutex becomes faster when many readers (low write ratio)
+// Readers  RWMutex      Mutex
+// 1        5.677209ms   5.709541ms
+// 2        5.690625ms   5.776917ms
+// 4        5.760583ms   5.736291ms
+// 8        5.742417ms   5.614166ms
+// 16       5.724042ms   5.704958ms
+// 32       5.71575ms    5.718542ms
+// 64       5.698333ms   5.705084ms
+// 128      5.727292ms   5.7255ms
+// 256      5.689208ms   5.618542ms
+// 512      5.741292ms   5.727583ms
+// 1024     5.630541ms   5.73625ms
+// 2048     5.739458ms   5.619625ms
+// 4096     5.609958ms   5.533417ms
+// 8192     5.41725ms    5.35225ms
+// 16384    5.187875ms   5.064333ms
+// 32768    6.648584ms   12.0395ms
+// 65536    13.379334ms  15.416792ms
+// 131072   18.350875ms  22.832834ms
+// 262144   32.890417ms  44.96925ms
+// 524288   67.292166ms  92.001541ms
 
 // ============================================================================
 // 8. WHEN TO USE MUTEX VS RWMUTEX
@@ -415,23 +439,21 @@ func cacheExample() {
 	var wg sync.WaitGroup
 
 	// 1 writer goroutine
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for i := 0; i < 5; i++ {
+	wg.Go(func() {
+		for i := range 5 {
 			key := fmt.Sprintf("key%d", i)
 			cache.Set(key, fmt.Sprintf("value%d", i))
 			fmt.Printf("Writer: Set %s\n", key)
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(5 * time.Millisecond)
 		}
-	}()
-
+	})
+	// time.Sleep(1 * time.Millisecond)
 	// 10 reader goroutines (can all read simultaneously!)
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
-			for j := 0; j < 3; j++ {
+			for j := range 3 {
 				key := fmt.Sprintf("key%d", j)
 				if value, exists := cache.Get(key); exists {
 					fmt.Printf("Reader %d: Got %s=%s\n", id, key, value)
@@ -469,18 +491,22 @@ func deadlockExamples() {
 	// Goroutine 1: locks mu1 then mu2
 	go func() {
 		mu1.Lock()
+		fmt.Println("Goroutine 1: Locked mu1")
 		time.Sleep(1 * time.Millisecond)
-		mu2.Lock()         // Waits for mu2
-		defer mu2.Unlock() // remove defer for demo
+		mu2.Lock() // Waits for mu2
+		fmt.Println("Goroutine 1: Locked mu2")
+		mu2.Unlock() // remove defer for demo
 		mu1.Unlock()
 	}()
 
 	// Goroutine 2: locks mu2 then mu1
 	go func() {
 		mu2.Lock()
+		fmt.Println("Goroutine 2: Locked mu2")
 		time.Sleep(1 * time.Millisecond)
-		mu1.Lock()         // Waits for mu1 - DEADLOCK!
-		defer mu1.Unlock() // remove defer for demo
+		mu1.Lock() // Waits for mu1 - DEADLOCK!
+		fmt.Println("Goroutine 2: Locked mu1")
+		mu1.Unlock() // remove defer for demo
 		mu2.Unlock()
 	}()
 
@@ -528,19 +554,19 @@ func MutexAndRWMutex() {
 	fmt.Println("║           MUTEX & RWMUTEX COMPLETE GUIDE                   ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 
-	// Run all demonstrations
-	// basicMutex()
-	// withoutMutex()
-	// withMutex()
-	// criticalSections()
-	// mutexBestPractices()
-	// criticalSectionOptimization()
-	// basicRWMutex()
+	// Run all demonstrations [running turn by turn is a better for learning]
+	basicMutex()
+	withoutMutex()
+	withMutex()
+	criticalSections()
+	mutexBestPractices()
+	criticalSectionOptimization()
+	basicRWMutex()
 	performanceComparison()
-	// whenToUseWhich()
-	// cacheExample()
-	// deadlockExamples()
-	// lockerInterface()
+	whenToUseWhich()
+	cacheExample()
+	deadlockExamples()
+	lockerInterface()
 
 	fmt.Println()
 	fmt.Println("╔════════════════════════════════════════════════════════════╗")
