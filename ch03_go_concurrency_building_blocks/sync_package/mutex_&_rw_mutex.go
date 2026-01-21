@@ -444,10 +444,10 @@ func cacheExample() {
 			key := fmt.Sprintf("key%d", i)
 			cache.Set(key, fmt.Sprintf("value%d", i))
 			fmt.Printf("Writer: Set %s\n", key)
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(5 * time.Millisecond)
 		}
 	})
-
+	// time.Sleep(1 * time.Millisecond)
 	// 10 reader goroutines (can all read simultaneously!)
 	for i := range 10 {
 		wg.Add(1)
@@ -491,18 +491,22 @@ func deadlockExamples() {
 	// Goroutine 1: locks mu1 then mu2
 	go func() {
 		mu1.Lock()
+		fmt.Println("Goroutine 1: Locked mu1")
 		time.Sleep(1 * time.Millisecond)
-		mu2.Lock()         // Waits for mu2
-		defer mu2.Unlock() // remove defer for demo
+		mu2.Lock() // Waits for mu2
+		fmt.Println("Goroutine 1: Locked mu2")
+		mu2.Unlock() // remove defer for demo
 		mu1.Unlock()
 	}()
 
 	// Goroutine 2: locks mu2 then mu1
 	go func() {
 		mu2.Lock()
+		fmt.Println("Goroutine 2: Locked mu2")
 		time.Sleep(1 * time.Millisecond)
-		mu1.Lock()         // Waits for mu1 - DEADLOCK!
-		defer mu1.Unlock() // remove defer for demo
+		mu1.Lock() // Waits for mu1 - DEADLOCK!
+		fmt.Println("Goroutine 2: Locked mu1")
+		mu1.Unlock() // remove defer for demo
 		mu2.Unlock()
 	}()
 
@@ -560,9 +564,9 @@ func MutexAndRWMutex() {
 	// basicRWMutex()
 	// performanceComparison()
 	// whenToUseWhich()
-	cacheExample()
+	// cacheExample()
 	// deadlockExamples()
-	// lockerInterface()
+	lockerInterface()
 
 	fmt.Println()
 	fmt.Println("╔════════════════════════════════════════════════════════════╗")
