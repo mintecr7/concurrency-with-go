@@ -307,9 +307,10 @@ func performanceComparison() {
 	// Producer: writes occasionally
 	producer := func(wg *sync.WaitGroup, l sync.Locker) {
 		defer wg.Done()
-		for i := 5; i > 0; i-- {
+		for range 5 {
 			l.Lock()
-			l.Unlock()                       // remove defer for demo [will cause deadlock, if not removed]
+			// fmt.Printf("Producer: acquired lock\n")
+			l.Unlock()
 			time.Sleep(1 * time.Millisecond) // Less active than observers
 		}
 	}
@@ -342,7 +343,7 @@ func performanceComparison() {
 	fmt.Fprintf(tw, "Readers\tRWMutex\tMutex\n")
 
 	// Test with increasing number of readers
-	for i := range 10 {
+	for i := range 20 {
 		count := int(math.Pow(2, float64(i)))
 		rwTime := test(count, &m, m.RLocker()) // Uses RLock for readers
 		mutexTime := test(count, &m, &m)       // Uses Lock for readers
@@ -352,6 +353,29 @@ func performanceComparison() {
 
 	fmt.Println("\nRWMutex becomes faster when many readers (low write ratio)")
 }
+
+// the output shows that RWMutex becomes faster when many readers (low write ratio)
+// Readers  RWMutex      Mutex
+// 1        5.677209ms   5.709541ms
+// 2        5.690625ms   5.776917ms
+// 4        5.760583ms   5.736291ms
+// 8        5.742417ms   5.614166ms
+// 16       5.724042ms   5.704958ms
+// 32       5.71575ms    5.718542ms
+// 64       5.698333ms   5.705084ms
+// 128      5.727292ms   5.7255ms
+// 256      5.689208ms   5.618542ms
+// 512      5.741292ms   5.727583ms
+// 1024     5.630541ms   5.73625ms
+// 2048     5.739458ms   5.619625ms
+// 4096     5.609958ms   5.533417ms
+// 8192     5.41725ms    5.35225ms
+// 16384    5.187875ms   5.064333ms
+// 32768    6.648584ms   12.0395ms
+// 65536    13.379334ms  15.416792ms
+// 131072   18.350875ms  22.832834ms
+// 262144   32.890417ms  44.96925ms
+// 524288   67.292166ms  92.001541ms
 
 // ============================================================================
 // 8. WHEN TO USE MUTEX VS RWMUTEX
