@@ -30,15 +30,15 @@ func inefficientApproaches() {
 	// WRONG APPROACH 1: Busy waiting (infinite loop)
 	fmt.Println("\n1. Busy waiting - consumes 100% of one CPU core:")
 	fmt.Println("   for conditionTrue() == false {}")
-	fmt.Println("   ❌ Wastes CPU cycles")
+	fmt.Println("   Wastes CPU cycles")
 
 	// WRONG APPROACH 2: Sleep loop
 	fmt.Println("\n2. Sleep loop - better but still inefficient:")
 	fmt.Println("   for conditionTrue() == false {")
 	fmt.Println("       time.Sleep(1*time.Millisecond)")
 	fmt.Println("   }")
-	fmt.Println("   ❌ Too long = poor performance")
-	fmt.Println("   ❌ Too short = wasted CPU")
+	fmt.Println("   Too long = poor performance")
+	fmt.Println("   Too short = wasted CPU")
 
 	_ = conditionTrue
 }
@@ -315,12 +315,12 @@ func whyTheLoop() {
 	fmt.Println("2. Multiple waiters: Another goroutine might consume the condition")
 	fmt.Println("3. Broadcast wakes all: Not all may satisfy the condition")
 
-	fmt.Println("\n❌ WRONG (no loop):")
+	fmt.Println("\n WRONG (no loop):")
 	fmt.Println("  c.L.Lock()")
 	fmt.Println("  if !condition { c.Wait() }")
 	fmt.Println("  c.L.Unlock()")
 
-	fmt.Println("\n✅ CORRECT (with loop):")
+	fmt.Println("\n CORRECT (with loop):")
 	fmt.Println("  c.L.Lock()")
 	fmt.Println("  for !condition { c.Wait() }")
 	fmt.Println("  c.L.Unlock()")
@@ -366,15 +366,15 @@ func whenToUseCond() {
 	fmt.Println("\n=== When to Use Cond ===")
 
 	fmt.Println("\nUse Cond when:")
-	fmt.Println("  ✅ You need to broadcast to multiple goroutines")
-	fmt.Println("  ✅ Repeated signaling is needed")
-	fmt.Println("  ✅ Efficiency is critical (more performant than channels)")
-	fmt.Println("  ✅ Waiting for a condition to become true")
+	fmt.Println("  - You need to broadcast to multiple goroutines")
+	fmt.Println("  - Repeated signaling is needed")
+	fmt.Println("  - Efficiency is critical (more performant than channels)")
+	fmt.Println("  - Waiting for a condition to become true")
 
 	fmt.Println("\nDon't use Cond when:")
-	fmt.Println("  ❌ Simple 1-to-1 signaling (use channels)")
-	fmt.Println("  ❌ Transferring data (use channels)")
-	fmt.Println("  ❌ Select statement needed (use channels)")
+	fmt.Println("  - Simple 1-to-1 signaling (use channels)")
+	fmt.Println("  - Transferring data (use channels)")
+	fmt.Println("  - Select statement needed (use channels)")
 
 	fmt.Println("\nCond vs Channels:")
 	fmt.Println("  Cond:     Signaling without data, broadcast capability")

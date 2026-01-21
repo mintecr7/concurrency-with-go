@@ -309,7 +309,7 @@ func performanceComparison() {
 		defer wg.Done()
 		for range 5 {
 			l.Lock()
-			// fmt.Printf("Producer: acquired lock\n")
+			fmt.Printf("Producer: acquired lock\n")
 			l.Unlock()
 			time.Sleep(1 * time.Millisecond) // Less active than observers
 		}
@@ -554,18 +554,18 @@ func MutexAndRWMutex() {
 	fmt.Println("║           MUTEX & RWMUTEX COMPLETE GUIDE                   ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 
-	// Run all demonstrations
-	// basicMutex()
-	// withoutMutex()
-	// withMutex()
-	// criticalSections()
-	// mutexBestPractices()
-	// criticalSectionOptimization()
-	// basicRWMutex()
-	// performanceComparison()
-	// whenToUseWhich()
-	// cacheExample()
-	// deadlockExamples()
+	// Run all demonstrations [running turn by turn is a better for learning]
+	basicMutex()
+	withoutMutex()
+	withMutex()
+	criticalSections()
+	mutexBestPractices()
+	criticalSectionOptimization()
+	basicRWMutex()
+	performanceComparison()
+	whenToUseWhich()
+	cacheExample()
+	deadlockExamples()
 	lockerInterface()
 
 	fmt.Println()
