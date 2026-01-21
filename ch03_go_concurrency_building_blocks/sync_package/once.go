@@ -317,7 +317,7 @@ func multipleOnce() {
 	var wg sync.WaitGroup
 
 	// Some goroutines need DB
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
@@ -327,7 +327,7 @@ func multipleOnce() {
 	}
 
 	// Some goroutines need Cache
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
@@ -358,7 +358,7 @@ func (cp *ConnectionPool) Connect() error {
 		// Simulate connection error
 		if time.Now().Unix()%2 == 0 {
 			cp.err = fmt.Errorf("connection failed")
-			fmt.Println("  ❌ Connection failed")
+			fmt.Println(" x Connection failed")
 		} else {
 			cp.conn = "connected"
 			fmt.Println("  ✓ Connection successful")
@@ -370,7 +370,7 @@ func (cp *ConnectionPool) Connect() error {
 func errorHandling() {
 	fmt.Println("\n=== Error Handling with sync.Once ===")
 
-	fmt.Println("\n⚠️  Important: sync.Once executes exactly once")
+	fmt.Println("\n - Important: sync.Once executes exactly once")
 	fmt.Println("Even if the function returns an error!")
 	fmt.Println("If initialization fails, it stays failed")
 
@@ -395,146 +395,147 @@ func errorHandling() {
 	fmt.Println("\n💡 For retry logic, don't use sync.Once!")
 }
 
-// // ============================================================================
-// // 10. PERFORMANCE: WHEN TO USE sync.Once
-// // ============================================================================
+// ============================================================================
+// 10. PERFORMANCE: WHEN TO USE sync.Once
+// ============================================================================
 
-// func performance() {
-// 	fmt.Println("\n=== Performance Characteristics ===")
+func performance() {
+	fmt.Println("\n=== Performance Characteristics ===")
 
-// 	fmt.Println("\nSync.Once is very fast:")
-// 	fmt.Println("  • First call: Executes function (slow if function is slow)")
-// 	fmt.Println("  • Subsequent calls: Just checks atomic flag (extremely fast)")
+	fmt.Println("\nSync.Once is very fast:")
+	fmt.Println("  • First call: Executes function (slow if function is slow)")
+	fmt.Println("  • Subsequent calls: Just checks atomic flag (extremely fast)")
 
-// 	var once sync.Once
-// 	expensiveInit := func() {
-// 		time.Sleep(100 * time.Millisecond)
-// 	}
+	var once sync.Once
+	expensiveInit := func() {
+		time.Sleep(100 * time.Millisecond)
+	}
 
-// 	// First call
-// 	start := time.Now()
-// 	once.Do(expensiveInit)
-// 	fmt.Printf("First call: %v (includes initialization)\n", time.Since(start))
+	// First call
+	start := time.Now()
+	once.Do(expensiveInit)
+	fmt.Printf("First call: %v (includes initialization)\n", time.Since(start))
 
-// 	// Subsequent calls
-// 	start = time.Now()
-// 	for i := 0; i < 10000; i++ {
-// 		once.Do(expensiveInit)
-// 	}
-// 	fmt.Printf("10,000 subsequent calls: %v (just checks flag)\n", time.Since(start))
-// }
+	// Subsequent calls
+	start = time.Now()
+	for range 10000 {
+		once.Do(expensiveInit)
+	}
+	fmt.Printf("10,000 subsequent calls: %v (just checks flag)\n", time.Since(start))
+}
 
-// // ============================================================================
-// // 11. REAL-WORLD USE CASES
-// // ============================================================================
+// ============================================================================
+// 11. REAL-WORLD USE CASES
+// ============================================================================
 
-// func realWorldUseCases() {
-// 	fmt.Println("\n=== Real-World Use Cases ===")
+func realWorldUseCases() {
+	fmt.Println("\n=== Real-World Use Cases ===")
 
-// 	fmt.Println("\n1. Database Connection Pooling")
-// 	fmt.Println("   var once sync.Once")
-// 	fmt.Println("   func GetDB() *sql.DB {")
-// 	fmt.Println("       once.Do(func() { db = sql.Open(...) })")
-// 	fmt.Println("       return db")
-// 	fmt.Println("   }")
+	fmt.Println("\n1. Database Connection Pooling")
+	fmt.Println("   var once sync.Once")
+	fmt.Println("   func GetDB() *sql.DB {")
+	fmt.Println("       once.Do(func() { db = sql.Open(...) })")
+	fmt.Println("       return db")
+	fmt.Println("   }")
 
-// 	fmt.Println("\n2. Configuration Loading")
-// 	fmt.Println("   Expensive config file parsing happens once")
+	fmt.Println("\n2. Configuration Loading")
+	fmt.Println("   Expensive config file parsing happens once")
 
-// 	fmt.Println("\n3. Logger Initialization")
-// 	fmt.Println("   Single global logger instance")
+	fmt.Println("\n3. Logger Initialization")
+	fmt.Println("   Single global logger instance")
 
-// 	fmt.Println("\n4. Template Parsing")
-// 	fmt.Println("   Parse templates once, reuse many times")
+	fmt.Println("\n4. Template Parsing")
+	fmt.Println("   Parse templates once, reuse many times")
 
-// 	fmt.Println("\n5. Cache Warming")
-// 	fmt.Println("   Pre-populate cache on first access")
+	fmt.Println("\n5. Cache Warming")
+	fmt.Println("   Pre-populate cache on first access")
 
-// 	fmt.Println("\nFound 70+ uses in Go's standard library!")
-// }
+	fmt.Println("\nFound 70+ uses in Go's standard library!")
+}
 
-// // ============================================================================
-// // 12. COMPARISON: sync.Once vs Other Patterns
-// // ============================================================================
+// ============================================================================
+// 12. COMPARISON: sync.Once vs Other Patterns
+// ============================================================================
 
-// func comparison() {
-// 	fmt.Println("\n=== sync.Once vs Other Patterns ===")
+func comparison() {
+	fmt.Println("\n=== sync.Once vs Other Patterns ===")
 
-// 	fmt.Println("\nManual flag + mutex:")
-// 	fmt.Println("  var initialized bool")
-// 	fmt.Println("  var mu sync.Mutex")
-// 	fmt.Println("  mu.Lock()")
-// 	fmt.Println("  if !initialized { /* init */ ; initialized = true }")
-// 	fmt.Println("  mu.Unlock()")
-// 	fmt.Println("  Verbose, error-prone, locks every time")
+	fmt.Println("\nManual flag + mutex:")
+	fmt.Println("  var initialized bool")
+	fmt.Println("  var mu sync.Mutex")
+	fmt.Println("  mu.Lock()")
+	fmt.Println("  if !initialized { /* init */ ; initialized = true }")
+	fmt.Println("  mu.Unlock()")
+	fmt.Println("  Verbose, error-prone, locks every time")
 
-// 	fmt.Println("\nsync.Once:")
-// 	fmt.Println("  var once sync.Once")
-// 	fmt.Println("  once.Do(initialize)")
-// 	fmt.Println("  Clean, efficient, no locks after first call")
+	fmt.Println("\nsync.Once:")
+	fmt.Println("  var once sync.Once")
+	fmt.Println("  once.Do(initialize)")
+	fmt.Println("  Clean, efficient, no locks after first call")
 
-// 	fmt.Println("\nDouble-checked locking:")
-// 	fmt.Println("  if !initialized { mu.Lock(); ... }")
-// 	fmt.Println("  Complex, can be wrong, sync.Once does it internally")
-// }
+	fmt.Println("\nDouble-checked locking:")
+	fmt.Println("  if !initialized { mu.Lock(); ... }")
+	fmt.Println("  Complex, can be wrong, sync.Once does it internally")
+}
 
-// // ============================================================================
-// // MAIN FUNCTION - RUN ALL EXAMPLES
-// // ============================================================================
+// ============================================================================
+// MAIN FUNCTION - RUN ALL EXAMPLES
+// ============================================================================
 
-// func RunOnceExamples() {
-// 	fmt.Println("╔════════════════════════════════════════════════════════════╗")
-// 	fmt.Println("║              sync.Once COMPLETE GUIDE                      ║")
-// 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
+func RunOnceExamples() {
+	fmt.Println("╔════════════════════════════════════════════════════════════╗")
+	fmt.Println("║              sync.Once COMPLETE GUIDE                      ║")
+	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 
-// 	// Run all demonstrations
-// 	basicOnce()
-// 	onceCalls()
-// 	whyOnce()
-// 	tightScope()
-// 	lazyInitialization()
-// 	singletonPattern()
-// 	deadlockExample()
-// 	multipleOnce()
-// 	errorHandling()
-// 	performance()
-// 	realWorldUseCases()
-// 	comparison()
+	// Run all demonstrations
+	basicOnce()
+	onceCalls()
+	whyOnce()
+	tightScope()
+	lazyInitialization()
+	singletonPattern()
+	deadlockExample()
+	multipleOnce()
+	errorHandling()
+	performance()
+	realWorldUseCases()
+	comparison()
 
-// 	fmt.Println("\n╔════════════════════════════════════════════════════════════╗")
-// 	fmt.Println("║                    KEY TAKEAWAYS                           ║")
-// 	fmt.Println("╠════════════════════════════════════════════════════════════╣")
-// 	fmt.Println("║ sync.Once guarantees:                                     ║")
-// 	fmt.Println("║   • Function executes exactly ONCE                        ║")
-// 	fmt.Println("║   • Thread-safe across all goroutines                     ║")
-// 	fmt.Println("║   • Subsequent calls do nothing (very fast)               ║")
-// 	fmt.Println("║                                                            ║")
-// 	fmt.Println("║ Important Points:                                          ║")
-// 	fmt.Println("║   • Once.Do() counts calls, not unique functions          ║")
-// 	fmt.Println("║   • Only the FIRST function passed to Do() executes       ║")
-// 	fmt.Println("║   • All subsequent Do() calls are ignored                 ║")
-// 	fmt.Println("║   • No retry mechanism for errors                         ║")
-// 	fmt.Println("║                                                            ║")
-// 	fmt.Println("║ Best Practices:                                            ║")
-// 	fmt.Println("║   • Wrap Once in tight scope (type or small function)     ║")
-// 	fmt.Println("║   • Couple Once with specific initialization function     ║")
-// 	fmt.Println("║   • Avoid circular dependencies (causes deadlock)         ║")
-// 	fmt.Println("║   • Perfect for lazy initialization                       ║")
-// 	fmt.Println("║                                                            ║")
-// 	fmt.Println("║ Common Use Cases:                                          ║")
-// 	fmt.Println("║   • Singleton pattern                                     ║")
-// 	fmt.Println("║   • Database connection pools                             ║")
-// 	fmt.Println("║   • Configuration loading                                 ║")
-// 	fmt.Println("║   • Template parsing                                      ║")
-// 	fmt.Println("║   • Logger initialization                                 ║")
-// 	fmt.Println("║                                                            ║")
-// 	fmt.Println("║ Pattern:                                                   ║")
-// 	fmt.Println("║   type Resource struct {                                  ║")
-// 	fmt.Println("║       once sync.Once                                      ║")
-// 	fmt.Println("║       data string                                         ║")
-// 	fmt.Println("║   }                                                        ║")
-// 	fmt.Println("║   func (r *Resource) Init() {                             ║")
-// 	fmt.Println("║       r.once.Do(func() { /* expensive init */ })          ║")
-// 	fmt.Println("║   }                                                        ║")
-// 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
-// }
+	fmt.Println()
+	fmt.Println("╔════════════════════════════════════════════════════════════╗")
+	fmt.Println("║                    KEY TAKEAWAYS                           ║")
+	fmt.Println("╠════════════════════════════════════════════════════════════╣")
+	fmt.Println("║ sync.Once guarantees:                                      ║")
+	fmt.Println("║   • Function executes exactly ONCE                         ║")
+	fmt.Println("║   • Thread-safe across all goroutines                      ║")
+	fmt.Println("║   • Subsequent calls do nothing (very fast)                ║")
+	fmt.Println("║                                                            ║")
+	fmt.Println("║ Important Points:                                          ║")
+	fmt.Println("║   • Once.Do() counts calls, not unique functions           ║")
+	fmt.Println("║   • Only the FIRST function passed to Do() executes        ║")
+	fmt.Println("║   • All subsequent Do() calls are ignored                  ║")
+	fmt.Println("║   • No retry mechanism for errors                          ║")
+	fmt.Println("║                                                            ║")
+	fmt.Println("║ Best Practices:                                            ║")
+	fmt.Println("║   • Wrap Once in tight scope (type or small function)      ║")
+	fmt.Println("║   • Couple Once with specific initialization function      ║")
+	fmt.Println("║   • Avoid circular dependencies (causes deadlock)          ║")
+	fmt.Println("║   • Perfect for lazy initialization                        ║")
+	fmt.Println("║                                                            ║")
+	fmt.Println("║ Common Use Cases:                                          ║")
+	fmt.Println("║   • Singleton pattern                                      ║")
+	fmt.Println("║   • Database connection pools                              ║")
+	fmt.Println("║   • Configuration loading                                  ║")
+	fmt.Println("║   • Template parsing                                       ║")
+	fmt.Println("║   • Logger initialization                                  ║")
+	fmt.Println("║                                                            ║")
+	fmt.Println("║ Pattern:                                                   ║")
+	fmt.Println("║   type Resource struct {                                   ║")
+	fmt.Println("║       once sync.Once                                       ║")
+	fmt.Println("║       data string                                          ║")
+	fmt.Println("║   }                                                        ║")
+	fmt.Println("║   func (r *Resource) Init() {                              ║")
+	fmt.Println("║       r.once.Do(func() { /* expensive init */ })           ║")
+	fmt.Println("║   }                                                        ║")
+	fmt.Println("╚════════════════════════════════════════════════════════════╝")
+}
