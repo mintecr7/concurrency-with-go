@@ -439,23 +439,21 @@ func cacheExample() {
 	var wg sync.WaitGroup
 
 	// 1 writer goroutine
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for i := 0; i < 5; i++ {
+	wg.Go(func() {
+		for i := range 5 {
 			key := fmt.Sprintf("key%d", i)
 			cache.Set(key, fmt.Sprintf("value%d", i))
 			fmt.Printf("Writer: Set %s\n", key)
 			time.Sleep(10 * time.Millisecond)
 		}
-	}()
+	})
 
 	// 10 reader goroutines (can all read simultaneously!)
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
-			for j := 0; j < 3; j++ {
+			for j := range 3 {
 				key := fmt.Sprintf("key%d", j)
 				if value, exists := cache.Get(key); exists {
 					fmt.Printf("Reader %d: Got %s=%s\n", id, key, value)
@@ -560,9 +558,9 @@ func MutexAndRWMutex() {
 	// mutexBestPractices()
 	// criticalSectionOptimization()
 	// basicRWMutex()
-	performanceComparison()
+	// performanceComparison()
 	// whenToUseWhich()
-	// cacheExample()
+	cacheExample()
 	// deadlockExamples()
 	// lockerInterface()
 
