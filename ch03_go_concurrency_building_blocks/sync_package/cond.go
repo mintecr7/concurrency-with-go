@@ -6,6 +6,24 @@ import (
 	"time"
 )
 
+// Cond implements a condition variable, a rendezvous point
+// for goroutines waiting for or announcing the occurrence
+// of an event.
+//
+// Each Cond has an associated Locker L (often a [*Mutex] or [*RWMutex]),
+// which must be held when changing the condition and
+// when calling the [Cond.Wait] method.
+//
+// A Cond must not be copied after first use.
+//
+// In the terminology of [the Go memory model], Cond arranges that
+// a call to [Cond.Broadcast] or [Cond.Signal] “synchronizes before” any Wait call
+// that it unblocks.
+//
+// For many simple use cases, users will be better off using channels than a
+// Cond (Broadcast corresponds to closing a channel, and Signal corresponds to
+// sending on a channel).
+//
 // ============================================================================
 // sync.Cond - COMPLETE GUIDE
 // ============================================================================
@@ -100,7 +118,7 @@ func condWaitBehavior() {
 	fmt.Println("  }")
 	fmt.Println("  c.L.Unlock()")
 
-	fmt.Println("\n⚠️  IMPORTANT: Always check condition in a LOOP!")
+	fmt.Println("\n  IMPORTANT: Always check condition in a LOOP!")
 	fmt.Println("Signal doesn't guarantee your condition is true,")
 	fmt.Println("only that SOMETHING happened.")
 }
@@ -482,48 +500,49 @@ func CondDemo() {
 	fmt.Println("║              sync.Cond COMPLETE GUIDE                      ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 
-	// Run all demonstrations
+	// Run all demonstrations [recommended to run turn by turn]
 	inefficientApproaches()
-	basicCond()
-	condWaitBehavior()
-	queueExample()
-	signalVsBroadcast()
-	buttonExample()
-	multipleBroadcasts()
-	whyTheLoop()
-	whenToUseCond()
-	workerPoolExample()
+	// basicCond()
+	// condWaitBehavior()
+	// queueExample()
+	// signalVsBroadcast()
+	// buttonExample()
+	// multipleBroadcasts()
+	// whyTheLoop()
+	// whenToUseCond()
+	// workerPoolExample()
 
-	fmt.Println("\n╔════════════════════════════════════════════════════════════╗")
+	fmt.Println()
+	fmt.Println("╔════════════════════════════════════════════════════════════╗")
 	fmt.Println("║                    KEY TAKEAWAYS                           ║")
 	fmt.Println("╠════════════════════════════════════════════════════════════╣")
-	fmt.Println("║ sync.Cond = Condition Variable (event signaling)          ║")
+	fmt.Println("║ sync.Cond = Condition Variable (event signaling)           ║")
 	fmt.Println("║                                                            ║")
 	fmt.Println("║ Three Methods:                                             ║")
-	fmt.Println("║   • Wait()      - Suspend until signaled                  ║")
-	fmt.Println("║   • Signal()    - Wake ONE waiting goroutine              ║")
-	fmt.Println("║   • Broadcast() - Wake ALL waiting goroutines             ║")
+	fmt.Println("║   • Wait()      - Suspend until signaled                   ║")
+	fmt.Println("║   • Signal()    - Wake ONE waiting goroutine               ║")
+	fmt.Println("║   • Broadcast() - Wake ALL waiting goroutines              ║")
 	fmt.Println("║                                                            ║")
-	fmt.Println("║ Wait() Behavior (IMPORTANT):                              ║")
-	fmt.Println("║   1. Unlocks the mutex                                    ║")
-	fmt.Println("║   2. Suspends goroutine                                   ║")
-	fmt.Println("║   3. Waits for signal                                     ║")
-	fmt.Println("║   4. Re-locks the mutex                                   ║")
-	fmt.Println("║   5. Returns                                              ║")
+	fmt.Println("║ Wait() Behavior (IMPORTANT):                               ║")
+	fmt.Println("║   1. Unlocks the mutex                                     ║")
+	fmt.Println("║   2. Suspends goroutine                                    ║")
+	fmt.Println("║   3. Waits for signal                                      ║")
+	fmt.Println("║   4. Re-locks the mutex                                    ║")
+	fmt.Println("║   5. Returns                                               ║")
 	fmt.Println("║                                                            ║")
-	fmt.Println("║ GOLDEN RULE: Always check condition in a LOOP!            ║")
-	fmt.Println("║   c.L.Lock()                                              ║")
-	fmt.Println("║   for !condition { c.Wait() }                             ║")
-	fmt.Println("║   c.L.Unlock()                                            ║")
+	fmt.Println("║ GOLDEN RULE: Always check condition in a LOOP!             ║")
+	fmt.Println("║   c.L.Lock()                                               ║")
+	fmt.Println("║   for !condition { c.Wait() }                              ║")
+	fmt.Println("║   c.L.Unlock()                                             ║")
 	fmt.Println("║                                                            ║")
 	fmt.Println("║ Use Cases:                                                 ║")
-	fmt.Println("║   ✅ Broadcasting to multiple goroutines                   ║")
-	fmt.Println("║   ✅ Repeated signaling                                    ║")
-	fmt.Println("║   ✅ High-performance event notification                   ║")
+	fmt.Println("║   - Broadcasting to multiple goroutines                    ║")
+	fmt.Println("║   - Repeated signaling                                     ║")
+	fmt.Println("║   - High-performance event notification                    ║")
 	fmt.Println("║                                                            ║")
-	fmt.Println("║ Broadcast() is the killer feature:                        ║")
-	fmt.Println("║   • Hard to replicate with channels                       ║")
-	fmt.Println("║   • More performant than channels                         ║")
-	fmt.Println("║   • Best constrained to tight scopes                      ║")
+	fmt.Println("║ Broadcast() is the killer feature:                         ║")
+	fmt.Println("║   • Hard to replicate with channels                        ║")
+	fmt.Println("║   • More performant than channels                          ║")
+	fmt.Println("║   • Best constrained to tight scopes                       ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 }

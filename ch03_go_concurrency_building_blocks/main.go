@@ -7,6 +7,6 @@ import (
 func main() {
 	// goRoutine()
 	// syncpackage.WaitGroupDemo()
-	syncpackage.MutexAndRWMutex()
-	// syncpackage.CondDemo()
+	// syncpackage.MutexAndRWMutex()
+	syncpackage.CondDemo()
 }
