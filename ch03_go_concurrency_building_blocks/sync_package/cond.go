@@ -151,7 +151,7 @@ func queueExample() {
 
 	// Producer: adds 10 items to queue
 	fmt.Println("Adding 10 items to queue (max size: 2)...")
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		c.L.Lock() // Enter critical section
 
 		// Wait while queue is full
@@ -503,8 +503,8 @@ func CondDemo() {
 
 	// Run all demonstrations [recommended to run turn by turn]
 	// inefficientApproaches()
-	basicCond()
-	// condWaitBehavior()
+	// basicCond()
+	condWaitBehavior()
 	// queueExample()
 	// signalVsBroadcast()
 	// buttonExample()
