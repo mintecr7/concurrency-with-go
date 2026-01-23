@@ -504,8 +504,8 @@ func CondDemo() {
 	// Run all demonstrations [recommended to run turn by turn]
 	// inefficientApproaches()
 	// basicCond()
-	condWaitBehavior()
-	// queueExample()
+	// condWaitBehavior()
+	queueExample()
 	// signalVsBroadcast()
 	// buttonExample()
 	// multipleBroadcasts()
