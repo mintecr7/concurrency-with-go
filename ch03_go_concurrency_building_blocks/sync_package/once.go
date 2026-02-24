@@ -96,12 +96,11 @@ func whyOnce() {
 	}
 
 	var wg sync.WaitGroup
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			initialize() // Multiple goroutines might all see initialized=false
-		}()
+		wg.Go(func() {
+			initialize()
+		})
 	}
 	wg.Wait()
 	fmt.Println("  ^ Might initialize multiple times!")
@@ -117,7 +116,7 @@ func whyOnce() {
 	}
 
 	wg.Add(5)
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		go func() {
 			defer wg.Done()
 			once.Do(initializeOnce) // Guaranteed to run exactly once
@@ -157,13 +156,17 @@ func tightScope() {
 	var wg sync.WaitGroup
 
 	// Multiple goroutines try to connect
-	for i := 0; i < 5; i++ {
-		wg.Add(1)
-		go func(id int) {
-			defer wg.Done()
-			fmt.Printf("Goroutine %d calling Connect()\n", id)
-			Connect(db) // Only first call actually connects
-		}(i)
+	for i := range 5 {
+		// wg.Add(1)
+		wg.Go(func() {
+			fmt.Printf("Goroutine %d calling Connect()\n", i)
+			Connect(db)
+		})
+		// go func(id int) {
+		// 	defer wg.Done()
+		// 	fmt.Printf("Goroutine %d calling Connect()\n", id)
+		// 	Connect(db) // Only first call actually connects
+		// }(i)
 	}
 
 	wg.Wait()
@@ -489,10 +492,10 @@ func RunOnceExamples() {
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 
 	// Run all demonstrations
-	basicOnce()
+	// basicOnce()
 	// onceCalls()
 	// whyOnce()
-	// tightScope()
+	tightScope()
 	// lazyInitialization()
 	// singletonPattern()
 	// deadlockExample()
