@@ -156,13 +156,17 @@ func tightScope() {
 	var wg sync.WaitGroup
 
 	// Multiple goroutines try to connect
-	for i := 0; i < 5; i++ {
-		wg.Add(1)
-		go func(id int) {
-			defer wg.Done()
-			fmt.Printf("Goroutine %d calling Connect()\n", id)
-			Connect(db) // Only first call actually connects
-		}(i)
+	for i := range 5 {
+		// wg.Add(1)
+		wg.Go(func() {
+			fmt.Printf("Goroutine %d calling Connect()\n", i)
+			Connect(db)
+		})
+		// go func(id int) {
+		// 	defer wg.Done()
+		// 	fmt.Printf("Goroutine %d calling Connect()\n", id)
+		// 	Connect(db) // Only first call actually connects
+		// }(i)
 	}
 
 	wg.Wait()
@@ -490,8 +494,8 @@ func RunOnceExamples() {
 	// Run all demonstrations
 	// basicOnce()
 	// onceCalls()
-	whyOnce()
-	// tightScope()
+	// whyOnce()
+	tightScope()
 	// lazyInitialization()
 	// singletonPattern()
 	// deadlockExample()
