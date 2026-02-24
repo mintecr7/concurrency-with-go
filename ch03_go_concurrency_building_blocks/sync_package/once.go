@@ -489,8 +489,8 @@ func RunOnceExamples() {
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 
 	// Run all demonstrations
-	basicOnce()
-	// onceCalls()
+	// basicOnce()
+	onceCalls()
 	// whyOnce()
 	// tightScope()
 	// lazyInitialization()
