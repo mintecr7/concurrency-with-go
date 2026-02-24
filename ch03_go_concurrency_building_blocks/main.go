@@ -8,6 +8,6 @@ func main() {
 	// goRoutine()
 	// syncpackage.WaitGroupDemo()
 	// syncpackage.MutexAndRWMutex()
-	syncpackage.CondDemo()
-	// syncpackage.RunOnceExamples()
+	// syncpackage.CondDemo()
+	syncpackage.RunOnceExamples()
 }
