@@ -495,6 +495,7 @@ func RunOnceExamples() {
 	lazyInitialization()
 	singletonPattern()
 	deadlockExample()
+
 	multipleOnce()
 	errorHandling()
 	performance()
