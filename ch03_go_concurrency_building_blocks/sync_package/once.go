@@ -96,12 +96,11 @@ func whyOnce() {
 	}
 
 	var wg sync.WaitGroup
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			initialize() // Multiple goroutines might all see initialized=false
-		}()
+		wg.Go(func() {
+			initialize()
+		})
 	}
 	wg.Wait()
 	fmt.Println("  ^ Might initialize multiple times!")
@@ -117,7 +116,7 @@ func whyOnce() {
 	}
 
 	wg.Add(5)
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		go func() {
 			defer wg.Done()
 			once.Do(initializeOnce) // Guaranteed to run exactly once
@@ -490,8 +489,8 @@ func RunOnceExamples() {
 
 	// Run all demonstrations
 	// basicOnce()
-	onceCalls()
-	// whyOnce()
+	// onceCalls()
+	whyOnce()
 	// tightScope()
 	// lazyInitialization()
 	// singletonPattern()
