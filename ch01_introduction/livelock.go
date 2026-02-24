@@ -68,7 +68,7 @@ func runLivelock() {
 
 		// We limit to 5 attempts so the program actually finishes.
 		// In a real livelock, this loop would go on forever.
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			if tryDir("left", &left, &out) || tryDir("right", &right, &out) {
 				return
 			}
