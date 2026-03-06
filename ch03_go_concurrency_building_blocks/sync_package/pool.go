@@ -123,7 +123,7 @@ func withoutPool() {
 
 	start := time.Now()
 
-	for i := 0; i < workers; i++ {
+	for range workers {
 		go func() {
 			defer wg.Done()
 
@@ -157,7 +157,7 @@ func withPool() {
 	}
 
 	// Warm the pool
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		pool.Put(pool.New())
 	}
 
@@ -167,7 +167,7 @@ func withPool() {
 
 	start := time.Now()
 
-	for i := 0; i < workers; i++ {
+	for range workers {
 		go func() {
 			defer wg.Done()
 
@@ -195,7 +195,7 @@ func cacheWarming() {
 	fmt.Println("\n=== Cache Warming for High-Performance ===")
 
 	// Simulate expensive object creation
-	expensiveNew := func() interface{} {
+	expensiveNew := func() any {
 		time.Sleep(10 * time.Millisecond) // Expensive!
 		return &struct{ data string }{data: "expensive"}
 	}
@@ -204,7 +204,7 @@ func cacheWarming() {
 	pool1 := &sync.Pool{New: expensiveNew}
 
 	start := time.Now()
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		obj := pool1.Get()
 		pool1.Put(obj)
 	}
@@ -214,12 +214,12 @@ func cacheWarming() {
 	pool2 := &sync.Pool{New: expensiveNew}
 
 	// Pre-warm the pool
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		pool2.Put(expensiveNew())
 	}
 
 	start = time.Now()
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		obj := pool2.Get()
 		pool2.Put(obj)
 	}
@@ -240,7 +240,7 @@ type BufferPool struct {
 func NewBufferPool() *BufferPool {
 	return &BufferPool{
 		pool: &sync.Pool{
-			New: func() interface{} {
+			New: func() any {
 				// Create 4KB buffers
 				return new(bytes.Buffer)
 			},
@@ -292,21 +292,21 @@ func bufferPoolExample() {
 func whenToUse() {
 	fmt.Println("\n=== When to Use sync.Pool ===")
 
-	fmt.Println("\n✅ USE sync.Pool when:")
+	fmt.Println("\n USE sync.Pool when:")
 	fmt.Println("  • Objects are expensive to create")
 	fmt.Println("  • Objects are frequently allocated and deallocated")
 	fmt.Println("  • Objects are roughly uniform (same type/size)")
 	fmt.Println("  • You want to reduce GC pressure")
 	fmt.Println("  • High-throughput scenarios (servers, APIs)")
 
-	fmt.Println("\n❌ DON'T use sync.Pool when:")
+	fmt.Println("\n DON'T use sync.Pool when:")
 	fmt.Println("  • Objects have variable sizes (e.g., random-length slices)")
 	fmt.Println("  • Objects are rarely reused")
 	fmt.Println("  • Objects are cheap to create")
 	fmt.Println("  • Objects require complex initialization")
 	fmt.Println("  • You need guaranteed object availability")
 
-	fmt.Println("\n📝 Common Use Cases:")
+	fmt.Println("\n Common Use Cases:")
 	fmt.Println("  • Buffer pools (bytes.Buffer, strings.Builder)")
 	fmt.Println("  • HTTP request/response objects")
 	fmt.Println("  • JSON encoders/decoders")
@@ -323,7 +323,7 @@ func poolBestPractices() {
 
 	fmt.Println("\n1. New function must be thread-safe:")
 	goodPool := &sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return new(bytes.Buffer) // ✓ Thread-safe
 		},
 	}
@@ -335,7 +335,7 @@ func poolBestPractices() {
 
 	fmt.Println("\n3. Reset object state before Put:")
 	pool := &sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return new(bytes.Buffer)
 		},
 	}
@@ -366,9 +366,9 @@ func poolBestPractices() {
 func commonPitfalls() {
 	fmt.Println("\n=== Common Pitfalls ===")
 
-	fmt.Println("\n❌ Pitfall 1: Not resetting state")
+	fmt.Println("\n Pitfall 1: Not resetting state")
 	pool := &sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return new(bytes.Buffer)
 		},
 	}
@@ -380,20 +380,20 @@ func commonPitfalls() {
 	buf2 := pool.Get().(*bytes.Buffer)
 	fmt.Printf("  Got buffer with stale data: %q\n", buf2.String())
 
-	fmt.Println("\n❌ Pitfall 2: Wrong type assertion")
+	fmt.Println("\n Pitfall 2: Wrong type assertion")
 	fmt.Println("  obj := pool.Get().(WrongType) // PANIC!")
 
-	fmt.Println("\n❌ Pitfall 3: Forgetting to Put back")
+	fmt.Println("\n Pitfall 3: Forgetting to Put back")
 	fmt.Println("  buffer := pool.Get()")
 	fmt.Println("  // forgot pool.Put(buffer) - Pool becomes useless!")
 
-	fmt.Println("\n❌ Pitfall 4: Variable-sized objects")
+	fmt.Println("\n Pitfall 4: Variable-sized objects")
 	fmt.Println("  If you need slices of length 10, 100, 1000...")
 	fmt.Println("  Pool won't help - you'll rarely get the right size")
 
-	fmt.Println("\n❌ Pitfall 5: Storing values instead of pointers")
+	fmt.Println("\n Pitfall 5: Storing values instead of pointers")
 	badPool := &sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			buffer := make([]byte, 1024)
 			return buffer // BUG: Returns value, not pointer
 		},
@@ -420,7 +420,7 @@ func performanceBenchmark() {
 	// Without Pool
 	fmt.Println("\nWithout Pool:")
 	start := time.Now()
-	for i := 0; i < operations; i++ {
+	for range operations {
 		buf := createExpensive()
 		_ = buf
 		// Object becomes garbage
@@ -431,19 +431,19 @@ func performanceBenchmark() {
 	// With Pool
 	fmt.Println("\nWith Pool:")
 	pool := &sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			time.Sleep(1 * time.Microsecond)
 			return new(bytes.Buffer)
 		},
 	}
 
 	// Warm pool
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		pool.Put(pool.New())
 	}
 
 	start = time.Now()
-	for i := 0; i < operations; i++ {
+	for range operations {
 		buf := pool.Get().(*bytes.Buffer)
 		pool.Put(buf)
 		// Object reused
@@ -478,7 +478,7 @@ func httpServerExample() {
 
 	// Pool of response writers
 	writerPool := &sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return &ResponseWriter{
 				buffer: new(bytes.Buffer),
 			}
@@ -567,9 +567,11 @@ func typedPoolExample() {
 // ============================================================================
 
 func poolVsOthers() {
-	fmt.Println("\n=== sync.Pool vs Other Patterns ===")
+	fmt.Println()
+	fmt.Println("=== sync.Pool vs Other Patterns ===")
 
-	fmt.Println("\nsync.Pool vs Manual Pool:")
+	fmt.Println()
+	fmt.Println("sync.Pool vs Manual Pool:")
 	fmt.Println("  Manual: var objects = make(chan *Object, 100)")
 	fmt.Println("  ✗ Fixed size, can block")
 	fmt.Println("  sync.Pool:")
@@ -615,49 +617,50 @@ func PoolDemo() {
 	typedPoolExample()
 	poolVsOthers()
 
-	fmt.Println("\n╔════════════════════════════════════════════════════════════╗")
+	fmt.Println()
+	fmt.Println("╔════════════════════════════════════════════════════════════╗")
 	fmt.Println("║                    KEY TAKEAWAYS                           ║")
 	fmt.Println("╠════════════════════════════════════════════════════════════╣")
-	fmt.Println("║ sync.Pool = Concurrent-safe object pool                   ║")
+	fmt.Println("║ sync.Pool = Concurrent-safe object pool                    ║")
 	fmt.Println("║                                                            ║")
 	fmt.Println("║ Two Methods:                                               ║")
-	fmt.Println("║   • Get() - Retrieve object (calls New if empty)          ║")
-	fmt.Println("║   • Put() - Return object to pool for reuse               ║")
+	fmt.Println("║   • Get() - Retrieve object (calls New if empty)           ║")
+	fmt.Println("║   • Put() - Return object to pool for reuse                ║")
 	fmt.Println("║                                                            ║")
 	fmt.Println("║ Benefits:                                                  ║")
-	fmt.Println("║   • Reduces memory allocations                            ║")
-	fmt.Println("║   • Reduces GC pressure                                   ║")
-	fmt.Println("║   • Improves performance (can be 100-1000x faster)        ║")
-	fmt.Println("║   • Thread-safe                                           ║")
+	fmt.Println("║   • Reduces memory allocations                             ║")
+	fmt.Println("║   • Reduces GC pressure                                    ║")
+	fmt.Println("║   • Improves performance (can be 100-1000x faster)         ║")
+	fmt.Println("║   • Thread-safe                                            ║")
 	fmt.Println("║                                                            ║")
 	fmt.Println("║ GOLDEN RULES:                                              ║")
-	fmt.Println("║   1. New function must be thread-safe                     ║")
-	fmt.Println("║   2. ALWAYS Put() objects back (use defer)                ║")
-	fmt.Println("║   3. Reset object state before Put()                      ║")
-	fmt.Println("║   4. Make NO assumptions about Get() results              ║")
-	fmt.Println("║   5. Store POINTERS, not values                           ║")
+	fmt.Println("║   1. New function must be thread-safe                      ║")
+	fmt.Println("║   2. ALWAYS Put() objects back (use defer)                 ║")
+	fmt.Println("║   3. Reset object state before Put()                       ║")
+	fmt.Println("║   4. Make NO assumptions about Get() results               ║")
+	fmt.Println("║   5. Store POINTERS, not values                            ║")
 	fmt.Println("║                                                            ║")
 	fmt.Println("║ Use When:                                                  ║")
-	fmt.Println("║   ✅ Objects expensive to create                           ║")
-	fmt.Println("║   ✅ Frequent allocation/deallocation                      ║")
-	fmt.Println("║   ✅ Uniform object sizes                                  ║")
-	fmt.Println("║   ✅ High-throughput scenarios                             ║")
+	fmt.Println("║    Objects expensive to create                             ║")
+	fmt.Println("║    Frequent allocation/deallocation                        ║")
+	fmt.Println("║    Uniform object sizes                                    ║")
+	fmt.Println("║    High-throughput scenarios                               ║")
 	fmt.Println("║                                                            ║")
 	fmt.Println("║ Don't Use When:                                            ║")
-	fmt.Println("║   ❌ Variable-sized objects                                ║")
-	fmt.Println("║   ❌ Rare reuse                                            ║")
-	fmt.Println("║   ❌ Cheap to create                                       ║")
+	fmt.Println("║    Variable-sized objects                                  ║")
+	fmt.Println("║    Rare reuse                                              ║")
+	fmt.Println("║    Cheap to create                                         ║")
 	fmt.Println("║                                                            ║")
-	fmt.Println("║ ⚠️  IMPORTANT: GC can evict objects anytime!               ║")
-	fmt.Println("║     Don't rely on Pool for persistent storage             ║")
+	fmt.Println("║   IMPORTANT: GC can evict objects anytime!                 ║")
+	fmt.Println("║     Don't rely on Pool for persistent storage              ║")
 	fmt.Println("║                                                            ║")
 	fmt.Println("║ Pattern:                                                   ║")
-	fmt.Println("║   pool := &sync.Pool{                                     ║")
-	fmt.Println("║       New: func() interface{} {                           ║")
-	fmt.Println("║           return new(ExpensiveObject)                     ║")
+	fmt.Println("║   pool := &sync.Pool{                                      ║")
+	fmt.Println("║       New: func() interface{} {                            ║")
+	fmt.Println("║           return new(ExpensiveObject)                      ║")
 	fmt.Println("║       },                                                   ║")
 	fmt.Println("║   }                                                        ║")
-	fmt.Println("║   obj := pool.Get().(*ExpensiveObject)                    ║")
-	fmt.Println("║   defer pool.Put(obj)                                     ║")
+	fmt.Println("║   obj := pool.Get().(*ExpensiveObject)                     ║")
+	fmt.Println("║   defer pool.Put(obj)                                      ║")
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 }
