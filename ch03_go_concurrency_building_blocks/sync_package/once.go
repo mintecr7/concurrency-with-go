@@ -203,7 +203,7 @@ func lazyInitialization() {
 	var wg sync.WaitGroup
 
 	// Multiple goroutines request config
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
@@ -246,7 +246,7 @@ func singletonPattern() {
 	var wg sync.WaitGroup
 
 	// Multiple goroutines try to get instance
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
@@ -396,7 +396,7 @@ func errorHandling() {
 		fmt.Println("Second call: Success")
 	}
 
-	fmt.Println("\n💡 For retry logic, don't use sync.Once!")
+	fmt.Println("\n For retry logic, don't use sync.Once!")
 }
 
 // ============================================================================
